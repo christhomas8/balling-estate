@@ -4,23 +4,13 @@
 #include <iostream>
 #include <SDL_image.h>
 #include <string>
+#include <random>
+#include <bits/stdc++.h>
 
-int ball_x;
-int ball_y;
-int ball_xvel = 0;
-int ball_yvel = 0;
-int ball_radius;
-bool toggle_light = false;
+#include "logger.h"
 
-//Light mode colors
-int al_bg = 255;
-int bl_bg= 255;
-int cl_bg = 255;
-
-//Dark mode colors
-int ad_bg = 0;
-int bd_bg = 0;
-int cd_bg = 0;
+#ifndef GAMECLASS_H
+#define GAMECLASS_H
 
 class Balling
 {
@@ -29,23 +19,31 @@ public:
     Balling(int height_, int width_): height(height_), width(width_)
     {
         SDL_Init(SDL_INIT_VIDEO);       // Initializing SDL as Video
-        IMG_Init(IMG_INIT_PNG);
+        IMG_Init(IMG_INIT_PNG);         // Enable images
+
+        Logger log;
+        log.log_event("Initialized");
         
         window = SDL_CreateWindow("Balling", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, width, height,SDL_WINDOW_OPENGL);
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-        surface = IMG_Load("../bg.png");
+        
+        surface = IMG_Load("../grass.png");
+        surface_hole = IMG_Load("../hole.png");
+
         if (surface == NULL)
         {
             std::cout << IMG_GetError() << std::endl;
         }
+        if (surface_hole == NULL)
+        {
+            std::cout << IMG_GetError() << std::endl;
+        }
         texture = SDL_CreateTextureFromSurface(renderer,surface);
+        texture_hole = SDL_CreateTextureFromSurface(renderer,surface_hole);
 
-
-        //SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);      // setting draw color
         SDL_RenderClear(renderer);      // Clear the newly created window
-        SDL_RenderPresent(renderer);    // Reflects the changes done in the
-                                        //  window.
+        SDL_RenderPresent(renderer);    // Reflects the changes done in the window.
     }
 
     // Destructor
@@ -81,12 +79,46 @@ public:
         }
     }
 
-    void move_ball(int width, int height)
+    void light_mode()
+    {
+        if (toggle_light)
+        {
+            SDL_SetRenderDrawColor(renderer,ad_bg,bd_bg,cd_bg,0);
+        }
+        else
+        {
+            SDL_SetRenderDrawColor(renderer,al_bg,bl_bg,cl_bg,0);
+        }
+    }
+
+    int random_number(int min, int max)
+    {
+        //int num;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(min,max);
+
+        int num = dis(gen);
+        std::cout << num << std::endl;
+        return num;
+    }
+
+    void render_hole()
+    {
+        int start_point = random_number(hole_size,width-hole_size);
+    }
+
+    void run_game(int width, int height)
     {
         SDL_Event event;
         ball_x = width/2;
         ball_y = height/2;
         ball_radius = 30;
+
+        hole_pos.w = hole_size;
+        hole_pos.h = hole_size;
+        hole_pos.x = width/2;
+        hole_pos.y = 0;
         
         while (!(event.type == SDL_QUIT))
         {
@@ -98,16 +130,16 @@ public:
                         switch (event.key.keysym.sym)
                         {
                             case SDLK_LEFT:
-                                ball_xvel = -1;
+                                ball_xvel = -5;
                                 break;
                             case SDLK_RIGHT:
-                                ball_xvel = 1;
+                                ball_xvel = 5;
                                 break;
                             case SDLK_UP:
-                                ball_yvel = -1;
+                                ball_yvel = -5;
                                 break;
                             case SDLK_DOWN:
-                                ball_yvel = 1;
+                                ball_yvel = 5;
                                 break;
                             case SDLK_t:
                                 toggle_light = !toggle_light;
@@ -155,6 +187,8 @@ public:
                 }
             }
 
+
+            //Ball control and screen position
             if (ball_x >= ball_radius && ball_x <= width - ball_radius)
             {
                 ball_x += ball_xvel;
@@ -180,21 +214,33 @@ public:
                 ball_y = ball_radius + 2;
             }
             
-            if (toggle_light)
-            {
-                SDL_SetRenderDrawColor(renderer,ad_bg,bd_bg,cd_bg,0);
-            }
-            else
-            {
-                SDL_SetRenderDrawColor(renderer,al_bg,bl_bg,cl_bg,0);
-            }
+
+            //check light or dark mode setting
+            light_mode();
+
 
             SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer,texture, NULL,NULL);
+            SDL_RenderCopy(renderer,texture, NULL, NULL);
 
+            hole_pos.y = curr_line_height;
+
+
+            SDL_RenderCopy(renderer,texture_hole, NULL, &hole_pos);
+ 
             draw_circle(ball_x, ball_y, ball_radius);
-            draw_line(width/4,height/4,width*3/4, height/4);
+
+            curr_line_height += stage_vel;
+
+            if (curr_line_height > height)
+            {
+                curr_line_height = 0;
+            }
+            draw_line(width/4, curr_line_height, width*3/4, curr_line_height);
             
+
+
+
+
             SDL_RenderPresent(renderer);
         }
     }
@@ -207,4 +253,31 @@ private:
 
     SDL_Surface *surface = NULL; //pointer for surface
     SDL_Texture *texture = NULL; //pointer for texture/image
+
+    SDL_Surface *surface_hole = NULL;
+    SDL_Texture *texture_hole = NULL;
+
+    SDL_Rect hole_pos;
+    int hole_size = 150;
+
+    int ball_x;
+    int ball_y;
+    int ball_xvel = 0;
+    int ball_yvel = 0;
+    int ball_radius;
+    int stage_vel = 1;
+    int curr_line_height = 0;
+    bool toggle_light = false;
+
+    //Light mode colors
+    int al_bg = 255;
+    int bl_bg= 255;
+    int cl_bg = 255;
+
+    //Dark mode colors
+    int ad_bg = 0;
+    int bd_bg = 0;
+    int cd_bg = 0;
 };
+
+#endif
