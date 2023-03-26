@@ -108,7 +108,6 @@ public:
         std::uniform_int_distribution<> dis(min,max);
 
         int num = dis(gen);
-        //std::cout << num << std::endl;
         return num;
     }
 
