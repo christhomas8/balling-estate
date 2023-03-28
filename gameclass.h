@@ -28,8 +28,11 @@ public:
         window = SDL_CreateWindow("Balling", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, width, height,SDL_WINDOW_OPENGL);
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         
-        surface = IMG_Load("../grass.png");
-        surface_hole = IMG_Load("../shole.png");
+        //surface = IMG_Load("../grass.png");
+        surface = IMG_Load("../road.png");
+        //surface_hole = IMG_Load("../shole.png");
+        surface_hole = IMG_Load("../redcar.png");
+
 
         if (surface == NULL)
         {
@@ -60,6 +63,14 @@ public:
     {
         SDL_SetRenderDrawColor(renderer,0,0,0,0);
         SDL_RenderDrawLine(renderer,x1,y1,x2,y2);
+    }
+
+    //rectangle
+    void draw_thick_lines()
+    {
+        SDL_SetRenderDrawColor(renderer,255,255,255,0);
+        SDL_RenderDrawRect(renderer,&lines);
+        SDL_RenderFillRect(renderer, &lines);
     }
 
     void draw_circle(int center_x, int center_y, int radius_)
@@ -179,8 +190,13 @@ public:
 
         hole_pos.w = hole_size;
         hole_pos.h = hole_size;
-        hole_pos.x = width/2;
-        hole_pos.y = 0;
+        hole_pos.x = random_number(0,(width-hole_size));
+        hole_pos.y = (-5) * hole_size;
+
+        lines.w = 20;
+        lines.h = 275;
+        lines.y = 200;
+        lines.x = width/2 - lines.w/2;
         
         while (!(event.type == SDL_QUIT))
         {
@@ -260,6 +276,14 @@ public:
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer,texture, NULL, NULL);
 
+            //road lines
+            draw_thick_lines();
+            lines.y += stage_vel;
+            if ( lines.y > height)
+            {
+                lines.y = -lines.h;
+            }
+
             render_hole();
 
             curr_line_height += stage_vel;
@@ -270,7 +294,8 @@ public:
             }
 
             //
-            draw_line(width/4, curr_line_height, width*3/4, curr_line_height);
+            //draw_line(width/4, curr_line_height, width*3/4, curr_line_height);
+            
 
             //Game piece
             draw_circle(ball_x, ball_y, ball_radius);
@@ -294,7 +319,10 @@ private:
     SDL_Texture *texture_hole = NULL;
 
     SDL_Rect hole_pos;
-    int hole_size = 250;
+    int hole_size = 175;
+
+    SDL_Rect lines;
+    int line_size = 20;
 
     int ball_x;
     int ball_y;
