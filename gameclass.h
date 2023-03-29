@@ -22,7 +22,7 @@ public:
         SDL_Init(SDL_INIT_VIDEO);       // Initializing SDL as Video
         IMG_Init(IMG_INIT_PNG);         // Enable images
 
-        Logger log;
+        //Logger log;
         log.log_event("Initialized");
         
         window = SDL_CreateWindow("Balling", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, width, height,SDL_WINDOW_OPENGL);
@@ -32,6 +32,9 @@ public:
         surface = IMG_Load("../road.png");
         //surface_hole = IMG_Load("../shole.png");
         surface_hole = IMG_Load("../redcar.png");
+        surface_redcar = IMG_Load("../redcar.png");
+        surface_bluecar = IMG_Load("../bluecar.png");
+        surface_orangecar = IMG_Load("../orangecar.png");
 
 
         if (surface == NULL)
@@ -44,6 +47,9 @@ public:
         }
         texture = SDL_CreateTextureFromSurface(renderer,surface);
         texture_hole = SDL_CreateTextureFromSurface(renderer,surface_hole);
+        texture_redcar = SDL_CreateTextureFromSurface(renderer,surface_redcar);
+        texture_bluecar = SDL_CreateTextureFromSurface(renderer,surface_bluecar);
+        texture_orangecar = SDL_CreateTextureFromSurface(renderer,surface_orangecar);
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);      // setting draw color
         SDL_RenderClear(renderer);      // Clear the newly created window
@@ -133,6 +139,33 @@ public:
         SDL_RenderCopy(renderer,texture_hole, NULL, &hole_pos);
     }
 
+    void render_car()
+    {
+        car_pos.y += 1;
+        if (car_pos.y + car_size > height + car_size)
+        {
+            selection = random_number(1,3);
+            car_pos.y = -car_size;
+            car_pos.x = random_number(0, width-car_size);
+        }
+
+        switch (selection)
+        {
+            case 1:
+                SDL_RenderCopy(renderer,texture_redcar, NULL, &car_pos);
+                break;
+            case 2:
+                SDL_RenderCopy(renderer,texture_bluecar, NULL, &car_pos);
+                break;
+            case 3:
+                SDL_RenderCopy(renderer,texture_orangecar, NULL, &car_pos);
+                break;
+            default:
+                SDL_RenderCopy(renderer,texture_redcar, NULL, &car_pos);
+                break;
+        }
+    }
+
     void ball_control()
     {
         //Ball control and screen position
@@ -181,6 +214,16 @@ public:
 
     }
 
+    void check_crash()
+    {
+        if (    ball_x + ball_radius > car_pos.x && ball_x - ball_radius < car_pos.x + car_size 
+             && ball_y + ball_radius > car_pos.y && ball_y < car_pos.y + car_size)
+        {
+            ballHit += 1;
+        }
+
+    }
+
     void run_game(int width, int height)
     {
         SDL_Event event;
@@ -192,6 +235,11 @@ public:
         hole_pos.h = hole_size;
         hole_pos.x = random_number(0,(width-hole_size));
         hole_pos.y = (-5) * hole_size;
+
+        car_pos.h = car_size;
+        car_pos.w = car_size;
+        car_pos.x = random_number(0,(width-car_size));
+        car_pos.y = (-6) * car_size;
 
         lines.w = 20;
         lines.h = 275;
@@ -223,7 +271,8 @@ public:
                                 toggle_light = !toggle_light;
                                 break;
                             case SDLK_q:
-                                std::cout << "Quitting.." << std::endl;
+                                log.log_event("Quit button pressed");
+                                
                                 return;
                             case SDLK_p:
                                 pause_game();
@@ -284,7 +333,12 @@ public:
                 lines.y = -lines.h;
             }
 
-            render_hole();
+            //render_hole();
+
+
+            render_car();
+
+
 
             curr_line_height += stage_vel;
 
@@ -292,15 +346,13 @@ public:
             {
                 curr_line_height = 0;
             }
-
-            //
-            //draw_line(width/4, curr_line_height, width*3/4, curr_line_height);
             
 
             //Game piece
             draw_circle(ball_x, ball_y, ball_radius);
 
             check_intersection();
+            check_crash();
 
             SDL_RenderPresent(renderer);
         }
@@ -312,12 +364,22 @@ private:
     SDL_Renderer *renderer = NULL;      // Pointer for the renderer
     SDL_Window *window = NULL;      // Pointer for the window
 
+    //Background
     SDL_Surface *surface = NULL; //pointer for surface
     SDL_Texture *texture = NULL; //pointer for texture/image
 
     SDL_Surface *surface_hole = NULL;
     SDL_Texture *texture_hole = NULL;
 
+    SDL_Surface *surface_redcar = NULL;
+    SDL_Texture *texture_redcar = NULL;
+    SDL_Surface *surface_bluecar = NULL;
+    SDL_Texture *texture_bluecar = NULL;
+    SDL_Surface *surface_orangecar = NULL;
+    SDL_Texture *texture_orangecar = NULL;
+
+    SDL_Rect car_pos;
+    int car_size = 175;
     SDL_Rect hole_pos;
     int hole_size = 175;
 
@@ -332,6 +394,7 @@ private:
     int ballHit = 0;
     int stage_vel = 1;
     int curr_line_height = 0;
+    int selection;
     bool toggle_light = false;
 
     //Light mode colors
@@ -346,6 +409,8 @@ private:
 
     //Pause the game
     bool pause = false;
+
+    Logger log;
 };
 
 #endif

@@ -18,6 +18,7 @@ int main(int argc, char * argv[])
 
     //Log end time
     test.logtime('c');
+    std::cout << "Quitting.." << std::endl;
 
    return 1;
 }
