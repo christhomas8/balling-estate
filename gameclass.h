@@ -297,6 +297,16 @@ public:
                                 log.log_event("Paused");
                                 paused = false;
                                 break;
+                            case SDLK_y:
+                                if (continue_game)
+                                {
+
+                                }
+                                else 
+                                {
+                                    return;
+                                }
+                                break;
                             default:
                                 break;
                         }
@@ -429,6 +439,8 @@ private:
 
     //Pause the game
     bool pause = false;
+
+    bool continue_game = false;
 
     Logger log;
 };
