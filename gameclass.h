@@ -213,6 +213,7 @@ public:
         SDL_Delay(2000);
     }
 
+    /*
     void check_intersection()
     {
         if (    ball_x + ball_radius > hole_pos.x && ball_x - ball_radius < hole_pos.x + hole_size 
@@ -222,6 +223,7 @@ public:
         }
 
     }
+    */
 
     void check_crash()
     {
@@ -264,11 +266,6 @@ public:
         {
             while (SDL_PollEvent(&event))
             {
-                if (endgame)
-                {
-                    log.log_event("Game Over");
-                    return;
-                }
                 switch (event.type)
                 {
                     case SDL_KEYDOWN:
@@ -298,9 +295,9 @@ public:
                                 paused = false;
                                 break;
                             case SDLK_y:
-                                if (continue_game)
+                                if (continue_game == true)
                                 {
-
+                                    continue_game = false;
                                 }
                                 else 
                                 {
@@ -347,7 +344,7 @@ public:
                 }
             }
 
-            ball_control();            
+                     
 
             //check light or dark mode setting
             light_mode();
@@ -355,28 +352,33 @@ public:
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer,texture, NULL, NULL);
 
-            //road lines
-            draw_thick_lines();
-            lines.y += stage_vel;
-            if ( lines.y > height)
+            if (continue_game != true) 
             {
-                lines.y = -lines.h;
+                ball_control();   
+
+                //road lines
+                draw_thick_lines();
+                lines.y += stage_vel;
+                if ( lines.y > height)
+                {
+                    lines.y = -lines.h;
+                }
+
+                render_car();
+
+                curr_line_height += stage_vel;
+
+                if (curr_line_height > height)
+                {
+                    curr_line_height = 0;
+                }
+                
+                //Game piece
+                draw_circle(ball_x, ball_y, ball_radius);
+
+                //check_intersection();
+                check_crash();
             }
-
-            render_car();
-
-            curr_line_height += stage_vel;
-
-            if (curr_line_height > height)
-            {
-                curr_line_height = 0;
-            }
-            
-            //Game piece
-            draw_circle(ball_x, ball_y, ball_radius);
-
-            check_intersection();
-            check_crash();
 
             SDL_RenderPresent(renderer);
         }
@@ -410,8 +412,11 @@ private:
     SDL_Rect lines;
     int line_size = 20;
 
+    //Game States
     int lives = 3;
     bool endgame = false;
+    bool pause = false;
+    //bool continue_game = false;
 
     int ball_x;
     int ball_y;
@@ -437,12 +442,10 @@ private:
     int bd_bg = 0;
     int cd_bg = 0;
 
-    //Pause the game
-    bool pause = false;
-
-    bool continue_game = false;
-
     Logger log;
+
+public:
+    bool continue_game = false; 
 };
 
 #endif
