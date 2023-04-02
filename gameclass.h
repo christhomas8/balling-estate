@@ -213,18 +213,6 @@ public:
         SDL_Delay(2000);
     }
 
-    /*
-    void check_intersection()
-    {
-        if (    ball_x + ball_radius > hole_pos.x && ball_x - ball_radius < hole_pos.x + hole_size 
-             && ball_y + ball_radius > hole_pos.y && ball_y < hole_pos.y + hole_size)
-        {
-            ballHit += 1;
-        }
-
-    }
-    */
-
     void check_crash()
     {
         if (    ball_x + ball_radius > car_pos.x && ball_x - ball_radius < car_pos.x + car_size 
