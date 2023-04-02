@@ -220,6 +220,11 @@ public:
         {
             ballHit += 1;
             sub_lives();
+
+            if (lives < 1)
+            {
+                continue_game = true;
+            }
         }
     }
 
@@ -286,6 +291,11 @@ public:
                                 if (continue_game == true)
                                 {
                                     continue_game = false;
+                                    lives = 3;
+                                    ball_x = width/2;
+                                    ball_y = height - height/4;
+                                    car_pos.x = random_number(0,(width-car_size));
+                                    car_pos.y = (-6) * car_size;
                                 }
                                 else 
                                 {
@@ -332,26 +342,25 @@ public:
                 }
             }
 
-                     
-
             //check light or dark mode setting
             light_mode();
 
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer,texture, NULL, NULL);
 
+
+            ball_control();   
+
+            //road lines
+            draw_thick_lines();
+            lines.y += stage_vel;
+            if ( lines.y > height)
+            {
+                lines.y = -lines.h;
+            }
+
             if (continue_game != true) 
             {
-                ball_control();   
-
-                //road lines
-                draw_thick_lines();
-                lines.y += stage_vel;
-                if ( lines.y > height)
-                {
-                    lines.y = -lines.h;
-                }
-
                 render_car();
 
                 curr_line_height += stage_vel;

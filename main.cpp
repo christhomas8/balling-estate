@@ -16,14 +16,6 @@ int main(int argc, char * argv[])
     Balling app(height, width);
     app.run_game(width, height);
 
-    bool refCont = app.continue_game;
-
-
-    if(refCont)
-    {
-        std::cout << "refCount = true" << std::endl;
-    }
-
     //Log end time
     test.logtime('c');
     std::cout << "Quitting.." << std::endl;
