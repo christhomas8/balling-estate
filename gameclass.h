@@ -33,7 +33,7 @@ public:
         surface_redcar = IMG_Load("../images/redcar.png");
         surface_bluecar = IMG_Load("../images/bluecar.png");
         surface_orangecar = IMG_Load("../images/orangecar.png");
-        //surface_player = surface_redcar;//IMG_Load("../images/redcar.png");
+        surface_player = IMG_Load("../images/redcar.png");
 
 
         if (surface == NULL || surface_redcar == NULL
@@ -46,7 +46,7 @@ public:
         texture_redcar = SDL_CreateTextureFromSurface(renderer,surface_redcar);
         texture_bluecar = SDL_CreateTextureFromSurface(renderer,surface_bluecar);
         texture_orangecar = SDL_CreateTextureFromSurface(renderer,surface_orangecar);
-        //texture_player = SDL_CreateTextureFromSurface(renderer, surface_player);
+        texture_player = SDL_CreateTextureFromSurface(renderer, surface_player);
 
         SDL_SetWindowIcon(window, surface_redcar);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);      // setting draw color
@@ -180,9 +180,10 @@ public:
 
     void render_player()
     {
-        car_pos.y = height-(player_pos.h / 2);
-        //SDL_RenderCopy(renderer,texture_player,NULL, &player_pos);
-        //SDL_RenderCopy(renderer,texture_redcar, NULL, &car_pos);
+        player_pos.h = player_size;
+        player_pos.w = player_size;
+        SDL_RenderCopy(renderer,texture_player, NULL, &player_pos);
+        
     }
 
     void ball_control()
@@ -216,7 +217,30 @@ public:
 
     void player_control()
     {
-
+        if (player_pos.x >= 0 && player_pos.x <= width - player_size)
+        {
+            player_pos.x += ball_xvel;
+        }
+        else if (player_pos.x > width - player_size)
+        {
+            player_pos.x = width - player_size - 2;
+        }
+        else if (player_pos.x < 0)
+        {
+            player_pos.x = 0 + 2; 
+        }
+        if (player_pos.y >= player_size && player_pos.y <= height - player_size)
+        {
+            player_pos.y += ball_yvel;
+        }
+        else if (player_pos.y > height - player_size)
+        {
+            player_pos.y = height - player_size - 2;
+        }
+        else if (player_pos.y < player_size)
+        {
+            player_pos.y = player_size + 2;
+        }
     }
 
     void pause_game()
@@ -265,6 +289,10 @@ public:
         lines.h = 275;
         lines.y = 200;
         lines.x = width/2 - lines.w/2;
+
+        player_pos.x = width/2;
+        player_pos.y = height - height/4;
+        //ball_radius = 30;
         
         while (!(event.type == SDL_QUIT))
         {
@@ -359,7 +387,8 @@ public:
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer,texture, NULL, NULL);
 
-            ball_control();   
+            //ball_control(); 
+            player_control();  
 
             //road lines
             draw_thick_lines();
@@ -381,11 +410,12 @@ public:
                 }
                 
                 //Game piece
-                draw_circle(ball_x, ball_y, ball_radius);
-                //render_player();
+                //draw_circle(ball_x, ball_y, ball_radius);
+                render_player();
 
                 //check_intersection();
-                check_crash();
+
+                //check_crash();
             }
 
             SDL_RenderPresent(renderer);
