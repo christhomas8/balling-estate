@@ -263,6 +263,35 @@ public:
         }
     }
 
+    void impact()
+    {
+        if ((player_pos.x > car_pos.x - car_size && player_pos.x < car_pos.x + car_size) 
+            && (player_pos.y > car_pos.y - car_size && player_pos.y < car_pos.y + car_size))
+        {
+            playerHit += 1;
+            sub_lives();
+
+            if (lives < 1)
+            {
+                continue_game = true;
+            }
+
+            //
+            if (car_pos.x > width/2)
+            {
+                player_pos.x = player_size;
+            }
+            else if (car_pos.x < width/2 && car_pos.x + car_size >= width/2)
+            {
+                player_pos.x = width - (player_size);
+            }
+            else if (car_pos.x < width/2 && car_pos.x + car_size  < width/2)
+            {
+                player_pos.x = width - (2 * player_size);
+            }
+        }
+    }
+
     void game_over()
     {
         endgame = true;
@@ -422,12 +451,9 @@ public:
                 }
                 
                 //Game piece
-                //draw_circle(ball_x, ball_y, ball_radius);
                 render_player();
 
-                //check_intersection();
-
-                //check_crash();
+                impact();
             }
 
             SDL_RenderPresent(renderer);
@@ -471,7 +497,7 @@ private:
     int playerHit = 0;
 
     //Game States
-    int lives = 3;
+    int lives = 5;
     bool endgame = false;
     bool pause = false;
     //bool continue_game = false;
