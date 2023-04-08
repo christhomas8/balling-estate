@@ -219,7 +219,7 @@ public:
     {
         if (player_pos.x >= 0 && player_pos.x <= width - player_size)
         {
-            player_pos.x += ball_xvel;
+            player_pos.x += player_xvel;
         }
         else if (player_pos.x > width - player_size)
         {
@@ -231,7 +231,7 @@ public:
         }
         if (player_pos.y >= player_size && player_pos.y <= height - player_size)
         {
-            player_pos.y += ball_yvel;
+            player_pos.y += player_yvel;
         }
         else if (player_pos.y > height - player_size)
         {
@@ -268,9 +268,8 @@ public:
         endgame = true;
     }
 
-    void run_game(int width, int height)
+    void initials()
     {
-        SDL_Event event;
         ball_x = width/2;
         ball_y = height - height/4;
         ball_radius = 30;
@@ -291,8 +290,13 @@ public:
         lines.x = width/2 - lines.w/2;
 
         player_pos.x = width/2;
-        player_pos.y = height - height/4;
-        //ball_radius = 30;
+        player_pos.y = height - height/4; 
+    }
+
+    void run_game(int width, int height)
+    {
+        SDL_Event event;
+        initials();
         
         while (!(event.type == SDL_QUIT))
         {
@@ -305,15 +309,19 @@ public:
                         {
                             case SDLK_LEFT:
                                 ball_xvel = -3;
+                                player_xvel = -2;
                                 break;
                             case SDLK_RIGHT:
                                 ball_xvel = 3;
+                                player_xvel = 2;
                                 break;
                             case SDLK_UP:
                                 ball_yvel = -3;
+                                player_yvel = -3;
                                 break;
                             case SDLK_DOWN:
                                 ball_yvel = 3;
+                                player_yvel = 2;
                                 break;
                             case SDLK_t:
                                 toggle_light = !toggle_light;
@@ -352,24 +360,28 @@ public:
                                 if (ball_xvel < 0)
                                 {
                                     ball_xvel = 0;
+                                    player_xvel = 0;
                                 }
                                 break;
                             case SDLK_RIGHT:
                                 if (ball_xvel > 0)
                                 {
                                     ball_xvel = 0;
+                                    player_xvel = 0;
                                 }
                                 break;
                             case SDLK_UP:
                                 if (ball_yvel < 0)
                                 {
                                     ball_yvel = 0;
+                                    player_yvel = 0;
                                 }
                                 break;
                             case SDLK_DOWN:
                                 if (ball_yvel > 0)
                                 {
                                     ball_yvel = 0;
+                                    player_yvel = 0;
                                 }
                                 break;
                             default:
